@@ -594,7 +594,7 @@ function cargarXLSX(callback) {
       <span id="sync-status-txt" style="font-size:14px;color:#888;">Conectando...</span>
     </div>
     <p style="font-size:12px;color:#bbb;margin-top:4px;">Todos los datos se guardan automáticamente en la nube.</p>
-    <button onclick="cerrarSesion()" style="margin-top:12px;width:100%;padding:10px;border-radius:9px;border:1px solid var(--border2);background:var(--input);color:var(--text2);font-size:13px;cursor:pointer;font-family:inherit;">Cerrar sesión</button>
+    <button id="btn-cerrar-sesion" onclick="cerrarSesion()" style="margin-top:12px;width:100%;padding:10px;border-radius:9px;border:1px solid var(--border2);background:var(--input);color:var(--text2);font-size:13px;cursor:pointer;font-family:inherit;">Cerrar sesión</button>
   </div>
 </div>
 
@@ -835,17 +835,20 @@ import { getFirestore, initializeFirestore, persistentLocalCache, doc, setDoc, g
 //  (Firebase Console > Configuración del proyecto > Tus apps > Config)
 // =====================================================================
 const firebaseConfig = {
-  apiKey: "PEGAR_API_KEY",
-  authDomain: "PEGAR_PROYECTO.firebaseapp.com",
-  projectId: "PEGAR_PROYECTO",
-  storageBucket: "PEGAR_PROYECTO.firebasestorage.app",
-  messagingSenderId: "PEGAR",
-  appId: "PEGAR"
+  apiKey: "AIzaSyBcBa9XO2egsSTJI0q98tx_5qugsc5DN2I",
+  authDomain: "los-locos-fiambres-y-quesos.firebaseapp.com",
+  projectId: "los-locos-fiambres-y-quesos",
+  storageBucket: "los-locos-fiambres-y-quesos.firebasestorage.app",
+  messagingSenderId: "670519830710",
+  appId: "1:670519830710:web:3b84a3cbca0703fab3de17"
 };
 const CONFIG_PENDIENTE = firebaseConfig.apiKey.startsWith('PEGAR');
 const app = CONFIG_PENDIENTE ? null : initializeApp(firebaseConfig);
 const db = CONFIG_PENDIENTE ? null : initializeFirestore(app, { localCache: persistentLocalCache() });
-const auth = CONFIG_PENDIENTE ? null : getAuth(app);
+// Poner en true cuando se quiera pedir email y contraseña (requiere activar
+// Authentication en Firebase y usar las reglas de firestore.rules con login).
+const USAR_LOGIN = false;
+const auth = (CONFIG_PENDIENTE || !USAR_LOGIN) ? null : getAuth(app);
 
 // ---- ESTADO ----
 let gastosVar=[], cfg={fc:70,dias:30};
@@ -3304,6 +3307,9 @@ window.cerrarSesion=async function(){
 if(CONFIG_PENDIENTE){
   document.getElementById('loading').classList.add('hidden');
   document.getElementById('config-pendiente').style.display='flex';
+} else if(!USAR_LOGIN){
+  const bs=document.getElementById('btn-cerrar-sesion'); if(bs) bs.style.display='none';
+  iniciarApp();
 } else {
   onAuthStateChanged(auth,user=>{
     if(user){
